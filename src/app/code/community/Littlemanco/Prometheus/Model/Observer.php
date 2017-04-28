@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016 littleman.co
+ * Copyright 2017 littleman.co
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
  * @package  Littlemanco_Prometheus
  * @license  apache-2.0
  */
-
 /**
  * Responsible for processing metrics as a result of events dispatched by Magento
  */
@@ -34,7 +33,9 @@ class Littlemanco_Prometheus_Model_Observer
      */
     public function checkpointCron(Varien_Event_Observer $oEvent)
     {
-        Mage::getSingleton('littlemanco_prometheus/metrics_cronExecutionTimestamp')->update(now());
+        Mage::getModel('littlemanco_prometheus/metricsFactory')
+            ->getGauge('cron_execution_timestamp')
+            ->update(now());
     }
 
     /**
@@ -45,7 +46,9 @@ class Littlemanco_Prometheus_Model_Observer
      */
     public function checkpointCache(Varien_Event_Observer $oEvent)
     {
-        Mage::getSingleton('littlemanco_prometheus/metrics_cacheFlushTotal')->increment($oEvent->getType());
+        Mage::getModel('littlemanco_prometheus/metricsFactory', ['type'])
+            ->getCounter('cache_flush_total')
+            ->increment(1, $oEvent->getType());
     }
 
     /**
@@ -60,6 +63,8 @@ class Littlemanco_Prometheus_Model_Observer
         $sName = $oEvent->getEvent()->getName();
         $sCode = str_replace(self::S_INDEX_EVENT_PREFIX, null, $sName);
 
-        Mage::getSingleton('littlemanco_prometheus/metrics_indexerReindexTotal')->increment($sCode);
+        Mage::getModel('littlemanco_prometheus/metricsFactory', ['type'])
+            ->getCounter('indexer_reindex_total')
+            ->increment(1, $sCode);
     }
 }

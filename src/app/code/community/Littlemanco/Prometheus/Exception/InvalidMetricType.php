@@ -19,27 +19,19 @@
  * @license  apache-2.0
  */
 
-/**
- * Defines an abstract model that other metrics should implement. Takes care of fetching the metrics resource; a
- * singleton that all metrics should checkpoint to.
- */
-abstract class Littlemanco_Prometheus_Model_Metrics_Abstract
+class Littlemanco_Prometheus_Exception_InvalidMetricType extends Exception
 {
-    const S_METRIC_NAMESPACE = 'magento';
-
-    const S_TYPE_GAUGE    = 'gauge';
-    const S_TYPE_COUNTER = 'counter';
-
-    protected $sMetricType  = '';
-    protected $sMetricName  = '';
-    protected $sMetricHelp  = '';
-    protected $aLabelTitles = [];
-
     /**
-     * @return Prometheus\CollectorRegistry
+     * Modifies the message such that it is more descriptive when rendered
+     *
+     * @param string         $sMetricType
+     * @param int            $iCode
+     * @param Exception|null $mPrevious
      */
-    protected function getResource()
+    public function __construct($sMetricType, $iCode = 0, Exception $mPrevious = null)
     {
-        return Mage::getResourceSingleton('littlemanco_prometheus/metrics');
+        $sMessage = sprintf('Metric type "%s" does not exist', $sMetricType);
+
+        parent::__construct($sMessage, $iCode, $mPrevious);
     }
 }
